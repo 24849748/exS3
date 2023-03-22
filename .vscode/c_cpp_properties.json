@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "IDF",
+            "includePath": [
+                "${workspaceFolder}**",
+                "${workspaceFolder}/components/**",
+                "~/esp/esp-idf/components/**"
+            ],
+            "defines": [],
+            "compilerPath": "~/.espressif/tools/xtensa-esp32s3-elf/esp-2021r2-patch5-8.4.0/xtensa-esp32s3-elf/bin/xtensa-esp32s3-elf-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-x86",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

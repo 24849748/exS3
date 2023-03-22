@@ -1,0 +1,243 @@
+menu "exS3"
+    
+    menu "Bus"
+        #i2c 总线配置
+        menu "I2C"
+            choice I2C_PORT
+                prompt "I2C_PORT"
+                default I2C_NUM_0
+                help
+                    Select I2C port number, can be I2C_NUM_0 ~ (I2C_NUM_MAX-1).
+
+                config I2C_NUM_0
+                    bool "I2C_NUM_0"
+                config I2C_NUM_1
+                    bool "I2C_NUM_1"
+            endchoice
+            #i2c 引脚选择 默认硬件exS3
+            menu "I2C GPIO Select"
+                config PIN_I2C_SDA
+                    int "I2C_SDA"
+                    default 48
+                    help
+                        I2C GPIO number of SDA.
+                config PIN_I2C_SCL
+                    int "I2C_SCL"
+                    default 47
+                    help
+                        I2C GPIO number of SDA.
+
+                config I2C_PULLUP_EN
+                    bool "Enable internal GPIO pull mode"
+
+            endmenu
+            #i2c传输速率配置 default 0.2MHz
+            config I2C_SPEED_FREQ_HZ
+                int "Clock Speed"
+                default 200000 
+                help
+                    I2C clock frequency for master mode, (no higher than 1MHz for now)
+                
+        endmenu
+
+        menu "SPI"
+            choice SPI_HOST
+                prompt "SPI_HOST"
+                default SPI3_HOST
+                help
+                    Select SPI bus host.
+
+                config SPI1_HOST
+                    bool "SPI1_HOST"
+                config SPI2_HOST
+                    bool "SPI2_HOST"
+                config SPI3_HOST
+                    bool "SPI3_HOST"
+            endchoice
+            
+            menu "SPI GPIO Select"
+                config PIN_SPI_MOSI
+                    int "MOSI"
+                    default 12
+                    help
+                        SPI GPIO number of MOSI, or set -1 if not used.
+
+                config PIN_SPI_MISO
+                    int "MISO"
+                    default -1
+                    help
+                        SPI GPIO number of MOSI, or set -1 if not used.
+
+                config PIN_SPI_CLK
+                    int "CLK"
+                    default 13
+                    help
+                        SPI GPIO number of Clock, or set -1 if not used.
+
+                config PIN_SPI_WP
+                    int "WP"
+                    default -1
+                    help
+                        SPI GPIO number of Write Protect, or set -1 if not used.
+
+                config PIN_SPI_HOLD
+                    int "HOLD"
+                    default -1
+                    help
+                        SPI GPIO number of HOLD, or set -1 if not used.
+            endmenu
+            
+            config SPI_BUS_MAX_TRANSFER_SZ
+                int "SPI Bus max transfer size"
+                default 16348
+                help
+                    SPI maximum transfer size, in bytes, default to (8192*2)
+                    
+        endmenu
+
+    endmenu
+
+    menu "Widgets"
+        menu "Widgets GPIO Select"
+            config PIN_LED
+                int "LED"
+                default 1
+            
+            config PIN_MOTOR
+                int "Motor"
+                default 38
+
+            config PIN_ECD_A
+                int "Encoder A"
+                default 8
+            
+            config PIN_ECD_B
+                int "Encoder B"
+                default 6
+
+            config PIN_ECD_BTN
+                int "Encoder Button"
+                default 15
+        endmenu
+        
+            
+    endmenu
+
+    menu "LVGL dirvers"
+        
+        menu "Screen"
+            
+            menu "Screen GPIO Select"
+                config PIN_ST7789_CS
+                    int "CS"
+                    default 12
+                
+                config PIN_ST7789_RST
+                    int "RST"
+                    default 11
+    
+                config PIN_ST7789_BLK
+                    int "BLK"
+                    default 45
+                
+                config PIN_ST7789_DC
+                    int "DC"
+                    default 21
+            endmenu
+
+            config LV_HOR_RES_MAX
+                int "HOR_RES_MAX"
+                default 240
+
+            config LV_VER_RES_MAX
+                int "VER_RES_MAX"
+                default 320
+            
+            config DISP_BUF_SIZE
+                int "Custom display buffer size (bytes)"
+                default 8192
+            
+            config DISP_INVERT_COLORS
+                bool "Invert display color"
+                default f
+            
+            choice DISPLAY_ORIENTATION
+                prompt "Display orientation"
+                default DISPLAY_ORIENTATION_LANDSCAPE
+                
+                config DISPLAY_ORIENTATION_PORTRAIT
+                    bool "Portrait" 
+                
+                config DISPLAY_ORIENTATION_PORTRAIT_INVERTED
+                    bool "Portrait inverted" 
+                
+                config DISPLAY_ORIENTATION_LANDSCAPE
+                    bool "Landscape"
+
+                config DISPLAY_ORIENTATION_LANDSCAPE_INVERTED
+                    bool "Landscape inverted"
+            endchoice
+            config LV_DISPLAY_ORIENTATION
+                int
+                default 0 if DISPLAY_ORIENTATION_PORTRAIT
+                default 1 if DISPLAY_ORIENTATION_PORTRAIT_INVERTED
+                default 2 if DISPLAY_ORIENTATION_LANDSCAPE
+                default 3 if DISPLAY_ORIENTATION_LANDSCAPE_INVERTED
+            
+            #st7789 spi clock传输速率
+            choice LCD_CLK_SPEED_FREQ_SELECT
+                prompt "LCD SPI clock speed"
+                help
+                    Select LCD clock speed
+                
+                config LCD_CLK_SPEED_80
+                    bool "80 MHz"
+                config LCD_CLK_SPEED_40
+                    bool "40 MHz"
+                config LCD_CLK_SPEED_20
+                    bool "20 MHz"
+                config LCD_CLK_SPEED_16
+                    bool "16 MHz"
+                config LCD_CLK_SPEED_10
+                    bool "10 MHz"
+                config LCD_CLK_SPEED_8
+                    bool "8 MHz"
+                config LCD_CLK_SPEED_1
+                    bool "1 MHz"
+            endchoice
+            config LCD_CLK_SPEED_FREQ_HZ
+                int
+                default 80000000 if LCD_CLK_SPEED_80
+                default 40000000 if LCD_CLK_SPEED_40
+                default 20000000 if LCD_CLK_SPEED_20
+                default 16000000 if LCD_CLK_SPEED_16
+                default 10000000 if LCD_CLK_SPEED_10
+                default 8000000 if LCD_CLK_SPEED_8
+                default 1000000 if LCD_CLK_SPEED_1
+                default 40000000
+
+            config LCD_DEFAULT_BRIGHTNESS
+                int "Default brightness"
+                range 5 95
+            
+                
+        endmenu
+
+        menu "Touch"
+            config LV_FT6X35_SWAPXY
+                bool "Coordination Invert X and Y"
+                default f
+
+            config LV_FT6X36_INVERT_X
+                bool "coordination Invert X"
+                default f
+            
+            config LV_FT6X36_INVERT_Y
+                bool "coordination Invert Y"
+                default f
+                
+        endmenu
+
+    endmenu
+
+endmenu
