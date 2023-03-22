@@ -8,11 +8,14 @@
 #define TAG "axp"
 
 #define AXP_GET_REG(x)  (x >> 8)
-#define AXP_GET_BITNUM(x)   (x & 0xff)
+
+#define AXP_GET_BITNUM(x)   (x & 0x0f)      // 
+// 检查输入电压范围
 #define AXP_CHECK_VOLT(volt, min, max, ret)   if(volt < min || volt > max){           \
                                                     ESP_LOGI(TAG, "Invalid voltage!");  \
                                                     return ret;                         \
                                                 }                                       
+// 将读取的数据存入info结构体
 #define AXP_READ_STATUS(info, t, bit_num)    info = ((t & (1<<bit_num))? 1 : 0)
 
 
@@ -35,21 +38,21 @@ esp_err_t axp_init() {
     /* 电源输出控制 */
     axp_write_byte(0x12, axp_op_generate_byte(true, false, false, true, true, true));
     
-    axp_en_ctrl(EN_COLUMB, true);
-    axp_en_ctrl(EN_ADC_INTER_TEMP, true);
-    axp_en_ctrl(EN_PEK_SHUTDOWN, true);
+    axp_en_ctrl(EN_COLUMB, true);       // 库仑计使能
+    axp_en_ctrl(EN_ADC_INTER_TEMP, true);   // 内部温度ADC使能
+    axp_en_ctrl(EN_PEK_SHUTDOWN, true); //长按PEK关机使能
+    axp_write_byte(AXP173_PEK, 0b01011100);     // 关机时间：4s，开机时间：512ms，：长按键时间：1.5s
 
     /* set voltage */
-    axp_set_volt(DC1_SET_VOLT, 3300);
+    axp_set_volt(DC1_SET_VOLT, 3300);   
     axp_set_volt(LDO2_SET_VOLT, 3300);
     axp_set_volt(LDO3_SET_VOLT, 3300);
     axp_set_volt(LDO4_SET_VOLT, 3300);
 
     /* PEK 按键参数设置 */
-    axp_pek_setting(1,1,1);
-
+    // axp_pek_setting(1,1,1);
+    
     axp_info_t info;
-    // memset(&info, -1, sizeof(axp_info_t));
     axp_read_info(&info);
     axp_show_info(&info);
 
@@ -57,7 +60,14 @@ esp_err_t axp_init() {
     return ESP_OK;
 }
 
-esp_err_t axp_en_ctrl(en_command_t command, bool enable) {
+/**
+ * @brief 使能类设置，包括电源输出使能，ADC使能等
+ * 
+ * @param command 包括reg和bit_num信息的传参，格式: EN_OP_***; EN_***; EN_ADC_***
+ * @param enable  true or false
+ * @return esp_err_t 
+ */
+esp_err_t axp_en_ctrl(uint32_t command, bool enable) {
     esp_err_t ret = ESP_OK;
     uint8_t reg = AXP_GET_REG(command);
     uint8_t bit_num = AXP_GET_BITNUM(command);
@@ -74,7 +84,14 @@ esp_err_t axp_en_ctrl(en_command_t command, bool enable) {
     return ret;
 }
 
-esp_err_t axp_set_volt(volt_setting_t channel, int volt) {
+/**
+ * @brief 电压设置
+ * 
+ * @param channel 待设置的电源通道, 格式: ***_SET_VOLT
+ * @param volt 待设置电压, 单位mV
+ * @return esp_err_t 
+ */
+esp_err_t axp_set_volt(uint32_t channel, int volt) {
     esp_err_t ret = ESP_OK;
     uint8_t reg = AXP_GET_REG(channel);
     uint8_t tmp = 0;
@@ -135,6 +152,12 @@ esp_err_t axp_set_volt(volt_setting_t channel, int volt) {
     return ret;
 }
 
+/**
+ * @brief 读取AXP173常用信息, 并存储在 info结构体里
+ * 
+ * @param info 
+ * @return esp_err_t 
+ */
 esp_err_t axp_read_info(axp_info_t *info) {
     ESP_LOGI(TAG, "Reading axp info.");
     uint8_t tmp;
@@ -163,13 +186,20 @@ esp_err_t axp_read_info(axp_info_t *info) {
     AXP_READ_STATUS(info->dcdc1, tmp, 0);
 
 
-    axp_show_info(info);
+    // axp_show_info(info);
     
     ESP_LOGI(TAG, "End to read axp info.");
     return ESP_OK;
 }
 
-esp_err_t axp_read_adc_data(adc_data_t dc, float *buffer){
+/**
+ * @brief 读取ADC寄存器数据，并转换单位
+ * 
+ * @param dc 格式: DATA_***_***
+ * @param buffer 返回的数据
+ * @return esp_err_t 
+ */
+esp_err_t axp_read_adc_data(uint32_t dc, float *buffer){
     esp_err_t ret = ESP_OK;
     uint8_t reg = AXP_GET_REG(dc);
     uint8_t len = (dc & 0xff);
@@ -230,8 +260,9 @@ esp_err_t axp_read_adc_data(adc_data_t dc, float *buffer){
     return ret;
 }
 
+
 /**
- * @brief PEK 按键参数设置 , '{}' is default
+ * @brief [abandon],PEK 按键参数设置 , '{}' is default
  * 
  * @param boot_time         [0]:128ms _ {1}:512ms _ [2]:1s _ [3]:2s
  * @param longpress_time    [0]:1s _ {1}:1.5s _ [2]:2s _ [3]:2.5s
@@ -262,7 +293,7 @@ esp_err_t axp_set_adc_sample_rate(uint8_t rate){
 }
 
 /**
- * @brief TS 管脚设置, '{}' is default
+ * @brief [abandon], TS 管脚设置, '{}' is default
  * 
  * @param op_current    输出电流：      [0]:20uA _ [1]:40uA _ [2]:60uA _ {3}:80uA
  * @param op_way        电流输出方式：  [0]:关闭 _ [1]:充电时输出电流 _ {2}:ADC采样时 _ [3]:一直打开
@@ -278,14 +309,23 @@ esp_err_t axp_ts_setting(uint8_t op_current, uint8_t op_way, uint8_t function){
     return axp_write_byte(0x84, tmp);
 }
 
-
-esp_err_t axp_colum_pause(){
+/**
+ * @brief 暂停库仑计
+ * 
+ * @return esp_err_t 
+ */
+esp_err_t axp_columb_pause(void){
     uint8_t tmp;
     axp_read_byte(0xb8, &tmp);
     tmp |= (1<<6);
     return axp_write_byte(0xb8, tmp);
 }
-esp_err_t axp_colum_clear(){
+/**
+ * @brief 清除库仑计
+ * 
+ * @return esp_err_t 
+ */
+esp_err_t axp_columb_clear(void){
     uint8_t tmp;
     axp_read_byte(0xb8, &tmp);
     tmp |= (1<<5);

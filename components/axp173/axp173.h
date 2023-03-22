@@ -2,18 +2,18 @@
 #define _AXP173_H_
 
 #include "driver/i2c.h"
-#include "axp173_cm.h"
-#include "axp173_reg.h"
+// #include "axp173_cm.h"
+#include "axp173_def.h"
 
 /* ↓ custom define */
 
-
-#define AXP_PIN_IRQ 39
+#define AXP_PIN_IRQ     39
 #define AXP_I2C_PORT    I2C_PORT
 #define AXP_I2C_ADDR    (0x34)
 
-
 /* ↑ custom define */
+
+
 
 // 基本只会存01的值
 typedef struct{
@@ -40,20 +40,20 @@ typedef struct{
 /* ================================================================= */
 
 esp_err_t axp_init();
-esp_err_t axp_en_ctrl(en_command_t command, bool enable);
-esp_err_t axp_set_volt(volt_setting_t channel, int volt);
+esp_err_t axp_en_ctrl(uint32_t command, bool enable);
+esp_err_t axp_set_volt(uint32_t channel, int volt);
 esp_err_t axp_read_info(axp_info_t *info);
 
 // about adc
 esp_err_t axp_set_adc_sample_rate(uint8_t rate);
-esp_err_t axp_read_adc_data(adc_data_t dc, float *buffer);
+esp_err_t axp_read_adc_data(uint32_t dc, float *buffer);
 
 
 esp_err_t axp_pek_setting(uint8_t boot_time, uint8_t longpress_time, uint8_t shutdown_time);
 esp_err_t axp_ts_setting(uint8_t op_current, uint8_t op_way, uint8_t function);
 
-esp_err_t axp_colum_pause();
-esp_err_t axp_colum_clear();
+esp_err_t axp_columb_pause();
+esp_err_t axp_columb_clear();
 esp_err_t axp_read_columb_data(float *buffer);
 
 // tools
