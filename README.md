@@ -1,11 +1,11 @@
-# SmartIR-Software
+# exS3-Software
+
+exS3的软件仓库
 
 - **开发环境：VScode + ESP-IDF 4.4.2**
 - **第三方库：**
 - lvgl
-  - esp-iot-solution
-
-
+- esp-iot-solution
 
 
 
@@ -26,4 +26,6 @@
 > - [2022.11.8] 添加encoder调节LCD背光功能,减缓“烧屏”现象
 > - [2022.11.10] 将原来encoder_button组件独立出来，后续将支持多按键
 > - [2022.11.10] 添加息屏led闪烁指示、code format、修复息屏能触摸操作的bug
+> - [2023.03.22] 重构
+> - [2023.03.23] 修复axp173不能长按关机的问题，添加注释，define替代enum
 
