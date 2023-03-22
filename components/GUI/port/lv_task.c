@@ -74,8 +74,6 @@ void guiTask(void *pvParameter){
     ctrl_page_create_obj();
     create_brightnessBar();
     
-    //first page
-    // main_page_anim_in(200);
     create_notify_timer();
     start_page();
     /* ============================ */

@@ -1,6 +1,6 @@
 #include "ft6236.h"
 #include "ft6236_def.h"
-#include "i2c_mid.h"
+#include "i2c_bus.h"
 
 #include "esp_log.h"
 #define TAG "FT6236"
@@ -18,20 +18,18 @@ void ft6236_disable_read(void){
     touch_enable = false;
 }
 
-// /**
-//  * @brief ft6236读取寄存器数据，使用前必须先运行 ft6236_init() 函数
-//  * 
-//  * @param reg   待读取的寄存器
-//  * @param data  读取后存储的数据
-//  */
-// static esp_err_t ft6236_read_byte(uint8_t reg, uint8_t *data){
-//     // if(!ft6236.inited){
-//     //     ESP_LOGE(TAG, "ft6236 isn't init!");
-//     //     return ESP_FAIL;
-//     // }
-//     return i2c_bus_read_byte(ft6236.port, ft6236.addr, reg, data);
-// }
-
+/**
+ * @brief ft6236读取寄存器数据，使用前必须先运行 ft6236_init() 函数
+ * 
+ * @param reg   待读取的寄存器
+ * @param data  读取后存储的数据
+ */
+static esp_err_t ft6236_read_byte(uint8_t reg, uint8_t *data){
+    return i2c_bus_read_byte(FT6236_I2C_PORT, FT6236_I2C_ADDR, reg, data);
+}
+static esp_err_t ft6236_read_bytes(uint8_t reg, uint8_t *data, size_t len){
+    return i2c_bus_read_bytes(FT6236_I2C_PORT, FT6236_I2C_ADDR, reg, data, len);
+}
 
 
 /**
@@ -136,7 +134,7 @@ void ft6236_read(lv_indev_drv_t *drv, lv_indev_data_t *data){
     data->point.x = touch_inputs.last_x;
     data->point.y = touch_inputs.last_y;
     data->state = touch_inputs.current_state;
-    ESP_LOGI(TAG, "X=%u Y=%u", data->point.x, data->point.y);
+    ESP_LOGD(TAG, "X=%u Y=%u", data->point.x, data->point.y);
     
     return;
 }

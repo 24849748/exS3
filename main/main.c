@@ -8,7 +8,8 @@
 #include "freertos/task.h"
 
 
-#include "i2c_mid.h"
+// #include "i2c_mid.h"
+#include "i2c_bus.h"
 #include "spi_bus.h"
 #include "led.h"
 #include "axp173.h"
@@ -26,15 +27,9 @@ TaskHandle_t GuiTaskHandle;
 
 void app_main(void)
 {   
-    // int count;
-    // spi_bus_init(SPI_HOST);
-    // i2c_bus_init(I2C_NUM_0);
-
-    g_i2c_init();
-    // g_spi_init();
+    i2c_bus_init(I2C_PORT);
     spi_bus_init(SPI_HOST_ID);
     
-
     axp_init();
 
     // backlight init

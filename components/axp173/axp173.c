@@ -1,6 +1,7 @@
 #include "axp173.h"
 #include <string.h>
-#include "i2c_mid.h"
+#include "i2c_bus.h"
+// #include "i2c_mid.h"
 #include "esp_err.h"
 #include "esp_log.h"
 
@@ -8,15 +9,25 @@
 
 #define AXP_GET_REG(x)  (x >> 8)
 #define AXP_GET_BITNUM(x)   (x & 0xff)
-
 #define AXP_CHECK_VOLT(volt, min, max, ret)   if(volt < min || volt > max){           \
                                                     ESP_LOGI(TAG, "Invalid voltage!");  \
                                                     return ret;                         \
                                                 }                                       
-
 #define AXP_READ_STATUS(info, t, bit_num)    info = ((t & (1<<bit_num))? 1 : 0)
 
-// #define AXP_GENERATE_BYTE()
+
+static esp_err_t axp_read_byte(uint8_t reg, uint8_t *data){
+    return i2c_bus_read_bytes(AXP_I2C_PORT, AXP_I2C_ADDR, reg, data, 1);
+}
+static esp_err_t axp_read_bytes(uint8_t reg, uint8_t *data, size_t len){
+    return i2c_bus_read_bytes(AXP_I2C_PORT, AXP_I2C_ADDR, reg, data, len);
+}
+static esp_err_t axp_write_byte(uint8_t reg, uint8_t data){
+    return i2c_bus_write_bytes(AXP_I2C_PORT, AXP_I2C_ADDR, reg, &data, 1);
+}
+
+
+
 
 esp_err_t axp_init() {
     ESP_LOGI(TAG, "Init axp173 ...");

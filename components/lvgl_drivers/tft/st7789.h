@@ -9,7 +9,7 @@
 #define LCD_PIN_BLK     45
 #define LCD_PIN_DC      21
 
-#define LCD_INVERT_COLORS   0
+#define LCD_INVERT_COLORS   1
 #define LCD_SOFTWARE_RST    0
 
 #define ORIENTATION_PORTRAIT   0               // 竖向

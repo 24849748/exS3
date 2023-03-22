@@ -1,5 +1,7 @@
+.vscode/
 build/
 dependencies.lock
 sdkconfig
 sdkconfig.old
 old/
+tmp/

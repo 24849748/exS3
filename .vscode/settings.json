@@ -84,6 +84,7 @@
         "task.h": "c",
         "bus_mid.h": "c",
         "stdint.h": "c",
-        "i2c_mid.h": "c"
+        "i2c_mid.h": "c",
+        "esp_heap_caps.h": "c"
     }
 }

@@ -9,6 +9,9 @@
 #include "lvgl.h"
 
 
+#define FT6236_I2C_PORT I2C_NUM_0
+#define FT6236_I2C_ADDR (0x38)
+
 // typedef struct {
 //     bool inited;
 //     uint8_t addr;

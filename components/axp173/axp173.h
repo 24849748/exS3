@@ -1,12 +1,18 @@
 #ifndef _AXP173_H_
 #define _AXP173_H_
 
-
 #include "driver/i2c.h"
 #include "axp173_cm.h"
 #include "axp173_reg.h"
 
 /* ↓ custom define */
+
+
+#define AXP_PIN_IRQ 39
+#define AXP_I2C_PORT    I2C_PORT
+#define AXP_I2C_ADDR    (0x34)
+
+
 /* ↑ custom define */
 
 // 基本只会存01的值

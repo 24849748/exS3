@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include "esp_log.h"
+#include "esp_heap_caps.h"
 
 #define TAG "lv_disp_port"
 
@@ -27,8 +28,13 @@ void lv_port_disp_init(void)
     st7789_init(); //需要先初始化bus，add device and send init cmd
 
     static lv_disp_draw_buf_t draw_buf_dsc;
-    static lv_color_t buf_2_1[LV_HOR_RES_MAX * 40];                        /*A buffer for 10 rows*/
-    static lv_color_t buf_2_2[LV_VER_RES_MAX * 40];                        /*An other buffer for 10 rows*/
+    // static lv_color_t buf_2_1[LV_HOR_RES_MAX * 40];                        /*A buffer for 10 rows*/
+    // static lv_color_t buf_2_2[LV_VER_RES_MAX * 40];                        /*An other buffer for 10 rows*/
+    lv_color_t *buf_2_1 = heap_caps_malloc(LV_HOR_RES_MAX * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    assert(buf_2_1);
+    lv_color_t *buf_2_2 = heap_caps_malloc(LV_VER_RES_MAX * 40 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    assert(buf_2_2);
+
     lv_disp_draw_buf_init(&draw_buf_dsc, buf_2_1, buf_2_2, LV_HOR_RES_MAX * 40);   /*Initialize the display buffer*/
 
 
