@@ -55,17 +55,17 @@ static lv_indev_state_t encoder_state;
 void lv_port_indev_init(void)
 {
 
-    static lv_indev_drv_t indev_drv;
+    static lv_indev_drv_t touch_drv;
     /*------------------
      * Touchpad
      * -----------------*/
     ft6236_init();
 
     /*Register a touchpad input device*/
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = ft6236_read;
-    indev_touchpad = lv_indev_drv_register(&indev_drv);
+    lv_indev_drv_init(&touch_drv);
+    touch_drv.type = LV_INDEV_TYPE_POINTER;
+    touch_drv.read_cb = ft6236_read;
+    indev_touchpad = lv_indev_drv_register(&touch_drv);
 
 
     /*------------------

@@ -85,6 +85,8 @@
         "bus_mid.h": "c",
         "stdint.h": "c",
         "i2c_mid.h": "c",
-        "esp_heap_caps.h": "c"
+        "esp_heap_caps.h": "c",
+        "sdkconfig.h": "c",
+        "exs3_conf.h": "c"
     }
 }

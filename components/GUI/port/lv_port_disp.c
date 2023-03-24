@@ -3,9 +3,6 @@
  *********************/
 #include "lv_port_disp.h"
 
-// #include "lvgl_helpers.h"
-// #include "disp_driver.h"
-// #include "disp_spi.h"
 #include "st7789.h"
 
 #include "sdkconfig.h"
@@ -57,7 +54,6 @@ void lv_port_disp_init(void)
     disp_drv.draw_buf = &draw_buf_dsc;
 
     /*Finally register the driver*/
-    // lv_disp_set_bg_color(&disp_drv, lv_color_hex(0x2c313c));
     lv_disp_drv_register(&disp_drv);
     
 }

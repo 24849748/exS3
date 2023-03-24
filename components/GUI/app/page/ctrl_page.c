@@ -32,7 +32,7 @@ static void btn_led_cb(lv_event_t *e){
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_CLICKED) {
         LEDstatus = !LEDstatus;
-        led_set(PIN_LED, LEDstatus);
+        led_set(LEDstatus);
         ESP_LOGI(TAG, "LED:%s\n",LEDstatus?"open":"close");
     }
 }
@@ -40,7 +40,7 @@ static void btn_motor_cb(lv_event_t *e){
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_CLICKED) {
         MOTORstatus = !MOTORstatus;
-        motor_set(PIN_MOTOR, MOTORstatus);
+        motor_set(MOTORstatus);
         ESP_LOGI(TAG, "Motor:%s\n",MOTORstatus?"open":"close");
     }
 }

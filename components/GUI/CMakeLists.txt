@@ -21,4 +21,4 @@ idf_component_register(
         ${GUI_ROOT_DIR}/app/anim
         ${GUI_ROOT_DIR}/app/widgets
     REQUIRES 
-        lvgl lvgl_drivers widgets axp173 spiffs)
+        lvgl exS3 spiffs)

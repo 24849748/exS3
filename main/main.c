@@ -15,15 +15,14 @@
 #include "axp173.h"
 #include "motor.h"
 #include "encoder.h"
-
 #include "lv_task.h"
 
+#include "exS3_conf.h"
 
 #include "esp_log.h"
 #define TAG "main"
 
 TaskHandle_t GuiTaskHandle;
-
 
 void app_main(void)
 {   
@@ -32,28 +31,19 @@ void app_main(void)
     
     axp_init();
 
-    // backlight init
-
-    led_init(PIN_LED, 0);
-    motor_init(PIN_MOTOR, 0);
-    // ecd_init(CONFIG_PIN_ECD_B, CONFIG_PIN_ECD_A, 1);
-
-    // axp_init(I2C_NUM_0, AXP173_I2C_ADDR);
-    // encoder_btn_init();
+    led_init(LED_PIN, 0);
+    motor_init(MOTOR_PIN, 0);
     
     encoder_init();
-
     
-
     // lv_create_task();    
     xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, &GuiTaskHandle, 1);
-
-    // create_encoder_task();
     xTaskCreatePinnedToCore(encoder_task, "encoderTask", 4096, (void *)GuiTaskHandle, 4, NULL, 1);
     
-    motor_on(PIN_MOTOR);
-    vTaskDelay(pdMS_TO_TICKS(200));
-    motor_off(PIN_MOTOR);
+    motor_click(200);
+    // motor_on(MOTOR_PIN);
+    // vTaskDelay(pdMS_TO_TICKS(200));
+    // motor_off(MOTOR_PIN);
 
     // rtos_debug();
 }
