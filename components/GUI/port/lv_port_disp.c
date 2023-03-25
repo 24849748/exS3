@@ -2,12 +2,8 @@
  *      INCLUDES
  *********************/
 #include "lv_port_disp.h"
-
-#include "st7789.h"
-
-#include "sdkconfig.h"
 #include <stdbool.h>
-
+#include "st7789.h"
 #include "esp_log.h"
 #include "esp_heap_caps.h"
 
@@ -15,13 +11,9 @@
 
 
 
-// static void disp_init(void);
-// static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
-
-
 void lv_port_disp_init(void)
 { 
-    // driver_disp_init(); //初始化spi屏幕
+    
     st7789_init(); //需要先初始化bus，add device and send init cmd
 
     static lv_disp_draw_buf_t draw_buf_dsc;

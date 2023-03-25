@@ -87,6 +87,10 @@
         "i2c_mid.h": "c",
         "esp_heap_caps.h": "c",
         "sdkconfig.h": "c",
-        "exs3_conf.h": "c"
+        "exs3_conf.h": "c",
+        "ecd.h": "c",
+        "ecd_btn.h": "c",
+        "list": "c",
+        "ecd_app.h": "c"
     }
 }

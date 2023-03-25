@@ -3,6 +3,8 @@
 
 #include "driver/gpio.h"
 
+#include "exS3_conf.h"
+
 void lcd_bl_init(gpio_num_t pin);
 void lcd_bl_deinit(void);
 void lcd_bl_set(int brightness);

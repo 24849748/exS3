@@ -5,6 +5,10 @@
 #include "lvgl.h"
 #include "ft6236.h"
 
+#if LV_INDEV_USE_ENCODER
+#include "ecd.h"
+#include "ecd_btn.h"
+#endif
 /*********************
  *      DEFINES
  *********************/
@@ -19,10 +23,13 @@
  *  STATIC PROTOTYPES
  **********************/
 
+#if LV_INDEV_USE_ENCODER
 // static void encoder_init(void);
-// static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
+static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 // static void encoder_handler(void);
-#ifdef ECD_BTN
+#endif
+
+#if LV_INDEV_USE_BUTTON
 static void button_init(void);
 static void button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data);
 static int8_t button_get_pressed_id(void);
@@ -33,9 +40,13 @@ static bool button_is_pressed(uint8_t id);
  *  STATIC VARIABLES
  **********************/
 lv_indev_t * indev_touchpad;
-lv_indev_t * indev_encoder;
 
-#ifdef ECD_BTN
+#if LV_INDEV_USE_ENCODER
+lv_indev_t * indev_encoder;
+lv_group_t * encdoer_group;
+#endif
+
+#if LV_INDEV_USE_BUTTON
 lv_indev_t * indev_button;
 
 static int32_t encoder_diff;
@@ -56,6 +67,9 @@ void lv_port_indev_init(void)
 {
 
     static lv_indev_drv_t touch_drv;
+    #if LV_INDEV_USE_BUTTON
+    static lv_indev_drv_t encoder_drv;
+    #endif
     /*------------------
      * Touchpad
      * -----------------*/
@@ -71,22 +85,26 @@ void lv_port_indev_init(void)
     /*------------------
      * Encoder
      * -----------------*/
-
+#if LV_INDEV_USE_ENCODER
     /*Initialize your encoder if you have*/
     // encoder_init();
+    // ecd_init(false);
 
     /*Register a encoder input device*/
-    // lv_indev_drv_init(&indev_drv);
-    // indev_drv.type = LV_INDEV_TYPE_ENCODER;
-    // indev_drv.read_cb = encoder_read;
-    // indev_encoder = lv_indev_drv_register(&indev_drv);
+    lv_indev_drv_init(&encoder_drv);
+    encoder_drv.type = LV_INDEV_TYPE_ENCODER;
+    encoder_drv.read_cb = encoder_read;
+    indev_encoder = lv_indev_drv_register(&encoder_drv);
 
+    encdoer_group = lv_group_create();
+    lv_indev_set_group(indev_encoder, encdoer_group);
     /*Later you should create group(s) with `lv_group_t * group = lv_group_create()`,
      *add objects to the group with `lv_group_add_obj(group, obj)`
      *and assign this input device to group to navigate in it:
      *`lv_indev_set_group(indev_encoder, group);`*/
+#endif
 
-#ifdef ECD_BTN
+#if LV_INDEV_USE_BUTTON
 
     /*------------------
      * Button
@@ -116,7 +134,43 @@ void lv_port_indev_init(void)
  *   STATIC FUNCTIONS
  **********************/
 
-#ifdef ECD_BTN
+
+
+#if LV_INDEV_USE_ENCODER
+/*Initialize your keypad*/
+static void encoder_init(void)
+{
+    /*Your code comes here*/
+}
+
+/*Will be called by the library to read the encoder*/
+static void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data){
+    int16_t encoder_diff = ecd_get_direction();
+    
+    /* ...encoder button */
+    // ecd_btn_get_state()
+
+    data->enc_diff = encoder_diff;
+    data->state = (ecd_btn_get_state() ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED);
+}
+
+lv_group_t * lv_get_encoder_group(void){
+    return encdoer_group;
+}
+
+/*Call this function in an interrupt to process encoder events (turn, press)*/
+static void encoder_handler(void)
+{
+    /*Your code comes here*/
+
+    encoder_diff += 0;
+    encoder_state = LV_INDEV_STATE_REL;
+}
+
+#endif
+
+
+#if LV_INDEV_USE_BUTTON
 /*------------------
  * Button
  * -----------------*/

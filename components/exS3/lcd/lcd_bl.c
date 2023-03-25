@@ -2,7 +2,6 @@
 
 #include "driver/ledc.h"
 #include "soc/ledc_periph.h"
-#include "exS3_conf.h"
 #include "esp_log.h"
 
 #define TAG "lcd_bl"

@@ -28,13 +28,15 @@
 #define SPI_HOST_ID     SPI3_HOST
 
 #define LCD_PIN_RST     11
-#define LCD_PIN_BLK     45
+// #define LCD_PIN_BLK     45
 #define LCD_PIN_CS      12
 #define LCD_SPI_MODE    2   // ?
 #define LCD_SPEED_HZ    40
 // #define LCD_SPEED_HZ    (LCD_CLOCK_HZ * 1000 * 1000)  //40MHz
 // #define LCD_INVERT_COLOR    1
 // #define LCD_ORIENTATION 2
+
+#define LCD_DEFAULT_BRIGHTNESS  50
 
 
 /*********************
@@ -114,12 +116,11 @@
 
 #define ECD_PCNT_UNIT_NUM    PCNT_UNIT_0
 
-
+#define ECD_BTN_ACTIVE_LEVEL    0
 // button
 #define DEBOUNCE_TIME   8*1000          //消抖时间8ms
 #define SHORT_TIME      800*1000        //短按时间阈值800ms
 #define LONG_TIME       2000*1000       //长按时间阈值1s
-
 
 // 
 #define DEFAULT_MOTOR_CLICK_WORKTIME 80     // 点击操作马达震动时长 ms

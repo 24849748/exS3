@@ -1,113 +1,101 @@
+/**
+ * @file 使用新的encoder
+ * @author Bosco's git (1270112821@qq.com)
+ * @brief lvgl的bar组件没有key特性，实现encoder调节屏幕亮度的思路比较复杂，再者还有
+ *      触屏输入，encoder输入的必要性不大，因此单独创建一个任务来实现现有功能。
+ *      encoder作为LCD屏幕调节组件，需要实现调节LCD屏幕背光，长短按实现“锁屏/解锁”功能，
+ *      需要 or 被需要的模块如下：
+ *          - lcd_bl        : 
+ *          - notify_bar    : 
+ *          - ft6236        : 关闭触屏输入
+ *          - led           : 区别锁屏与关机 
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "encoder.h"
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include "freertos/task.h"
-#include "freertos/semphr.h"
-// #include "freertos/queue.h"
-
-#include "driver/pcnt.h"
-#include "rot_enc.h"
-// #include "encoder_button.h"
-#include "button.h"
-#include "lcd_bl.h"
-#include "led.h"
-#include "ft6236.h"
 
 #include "exS3_conf.h"
-#include "sdkconfig.h"      
 
-#include "esp_log.h"
-#define TAG "encoder"
+#include "ecd.h"
+#include "button.h"
+#include "lcd_bl.h"
+#include "ft6236.h"
+#include "led.h"
 
-#define ECD_DEBUG 1                 //开启debug 输出
+int brightness = 0;    // todo: 将默认亮度存储到nvs里, init时从nvs读取
+int lastbrightness = 0;
+bool encoder_read_enable;
+ecd_t * ecd;
 
-static int32_t last_count;          /* 最后一次计数 */
-static int32_t encoder_diff = 0;    /* 编码器转动方向 1-cw, -1-ccw, 0-default */
-
-uint8_t last_brightness = 0;         // 避免重复设置亮度
-uint8_t brightness = 50;             // 亮度
-
-encoder_handle_t ecd;               /* encoder 设备句柄 */
-
-void encoder_open_lcd(void){
+static void btn_open_lcd_cb(void){
     lcd_bl_set(brightness);
     ft6236_enable_read();
-    encoder_start(ecd);
+    encoder_read_enable = true;
     led_endBlink();
 }
-void encoder_close_lcd(void){
-    encoder_stop(ecd);
+
+static void btn_close_lcd_cb(void){
+    encoder_read_enable = false;
     ft6236_disable_read();
     lcd_bl_set(0);
     led_startBlink();
 }
 
-void encoder_init(void){    
-    //编码器按键初始化
-    button_init(encoder_open_lcd, encoder_close_lcd);
-
-    //创建编码器句柄
-    // ecd = encoder_create(ECD_PCNT_UNIT_NUM, PIN_ECD_A, PIN_ECD_B);
-    ecd = encoder_create(ECD_PCNT_UNIT_NUM, ECD_PIN_A, ECD_PIN_B);
-    
-    //设置去抖值，1us
-    encoder_set_glitch_fliter(ecd, 1);          //设置过滤
-    encoder_start(ecd);         //开启encoder pcnt
-
-    last_count = encoder_get_counter_value(ecd);    //获取初值
-
-    lcd_bl_init(LCD_PIN_BL);
+void encoder_open_lcd(void){
     lcd_bl_set(brightness);
 }
 
+void encoder_init(void){
+    ecd = ecd_create(ECD_PIN_A, ECD_PIN_B, false, true);
 
-void encoder_task(void *pvParameter){
-    // ecd = (encoder_handle_t)pvParameter;
-    TaskHandle_t GuiTaskHandle = (TaskHandle_t)pvParameter;
+    button_init(btn_open_lcd_cb, btn_close_lcd_cb);
 
-    while (1) {
-        vTaskDelay(pdMS_TO_TICKS(100));
+    brightness = LCD_DEFAULT_BRIGHTNESS;
+    lastbrightness = brightness;
+    encoder_read_enable = true;
 
-        button_scan();
-
-        // int32_t dir = 0;
-        int32_t count = encoder_get_counter_value(ecd);
-        // ESP_LOGI(TAG, "count:%d",count);
-        // if(count > 100) count = 100;
-        // if(count < 0) count = 0;
-
-        if(count - last_count < 0){
-            encoder_diff = -1;
-            brightness -= 5;
-        }else if(count - last_count > 0){
-            encoder_diff = 1;
-            brightness += 5;
-        }else if(count == last_count){
-            encoder_diff = 0;
-        }
-        last_count = count;
-        // ESP_LOGI(TAG, "diff:%d", encoder_diff);
-
-        if(brightness > 100) brightness = 100;
-        if(brightness < 5) brightness = 5;
-
-        if(brightness != last_brightness){
-            lcd_bl_set(brightness);
-            last_brightness = brightness;
-            xTaskNotify(GuiTaskHandle, (uint32_t)brightness, eSetValueWithOverwrite);
-        }
-    }
-    // encoder_delete(ecd);
+    // 初始化并关闭背光，在lv_task创建好obj后开启
+    lcd_bl_init(LCD_PIN_BL);
+    lcd_bl_set(0);
 }
 
+void encoder_task(void *pvParameter){
+    TaskHandle_t GuiTaskHandle = (TaskHandle_t)pvParameter;
+    // ecd_t * ecd = (ecd_t *)pvParameter;
 
+    int8_t dir;
+    while (1)
+    {
+        // ecd_btn_scan();
+        button_scan();
+        // 接受encoder的方向数据
+        if(xQueueReceive(ecd->queue, &dir, pdMS_TO_TICKS(200)) == pdTRUE)
+        {
+            if(dir == CW && encoder_read_enable){
+                brightness+=5;
+                if(brightness > 100) brightness = 100;
+            }else if(dir == CCW && encoder_read_enable){
+                brightness-=5;
+                if(brightness < 5) brightness = 5;
+            }
+        }
+        // 如果brightness有变化，设置屏幕亮度，并更新lastbrightness，并发送给notify_bar
+        if (brightness != lastbrightness)
+        {
+            lcd_bl_set(brightness);
+            lastbrightness = brightness;
+            xTaskNotify(GuiTaskHandle, (uint32_t)brightness, eSetValueWithoutOverwrite);
+        }
 
-
-
-
-
-/**
- * @todo 
- *      使用nvs存储亮度（或没必要）
- * 
- */
+        /* button事件处理 */
+        // 已在button的回调函数里实现
+        
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    
+}

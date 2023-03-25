@@ -10,9 +10,11 @@
 #define TAG "notifyBar"
 
 
-#define BAR_STILL_TIME 3000   // notify bar的停顿时间，单位ms
-#define BAR_TIMER_PERIOD 100   // 定时器周期，单位ms
-#define TIMER_COUNT  (BAR_STILL_TIME/BAR_TIMER_PERIOD)   
+#define BAR_USE_SHADOW  0       // bar阴影效果
+
+#define BAR_STILL_TIME      3000   // notify bar的停顿时间，单位ms
+#define BAR_TIMER_PERIOD    100   // 定时器周期，单位ms
+#define TIMER_COUNT         (BAR_STILL_TIME/BAR_TIMER_PERIOD)   
 
 #define BAR_HIDE_COORD_Y    -100    // 未唤醒的位置
 #define BAR_SHOW_COORD_Y    20      // 唤醒时的位置
@@ -37,10 +39,18 @@ static void bar_anim_out(uint32_t delay){
 
 /* 定时器回调函数，更新 bar 状态 */
 static void barTimer_cb(lv_timer_t *timer){
-    
     xTaskNotifyWait(0, 0, &brightness, 0);
-    // ESP_LOGI(TAG, "recive brightness:%d", brightness);
+    ESP_LOGD(TAG, "recive brightness:%d", brightness);
 
+    // if(dir > 0){
+    //     brightness+=5;
+    //     if(brightness > 100) brightness = 100;
+    // }else if(dir < 0){
+    //     brightness-=5;
+    //     if(brightness < 5) brightness = 5;
+    // }
+
+    // brightness 没有变化
     if(brightness == last_brightness){
         timer_count ++;
         if(timer_count == TIMER_COUNT){
@@ -50,6 +60,8 @@ static void barTimer_cb(lv_timer_t *timer){
         }
         return;
     }
+
+    // brightness 变化
     if(brightness != last_brightness){
         timer_count = 0;    //清零，重新计数
         if(!barState){
@@ -63,7 +75,6 @@ static void barTimer_cb(lv_timer_t *timer){
 
 
 void create_brightnessBar(void){
-
     xTaskNotifyWait(0, 0, &brightness, 0);
     last_brightness = brightness;
 
@@ -78,9 +89,11 @@ void create_brightnessBar(void){
     lv_obj_set_style_shadow_color(bar, lv_color_hex(0x16191c),0);
     
     /* shadow 可以不要 */
+    #if BAR_USE_SHADOW
     lv_obj_set_style_shadow_width(bar, 30, 0); 
     lv_obj_set_style_shadow_ofs_x(bar, 3, 0);
     lv_obj_set_style_shadow_ofs_y(bar, 3, 0);
+    #endif
 
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_SCROLLABLE); // 移除滑动flag
     lv_obj_align(bar, LV_ALIGN_TOP_MID, 0, BAR_HIDE_COORD_Y);     // 亮度条位置，默认在屏幕外面
@@ -94,7 +107,7 @@ void create_brightnessBar(void){
     lv_obj_set_style_bg_color(bar_line, lv_color_hex(0x21ffe0),LV_PART_INDICATOR);
     lv_bar_set_range(bar_line, 0, 100);
     // lv_bar_set_value(bar_line, brightness, LV_ANIM_ON);
-
+    // lv_group_add_obj(lv_get_encoder_group(), bar_line);
     // lv_obj_add_event_cb(brightness_indicator,)  // 亮度条回调函数，
 
     /* 亮度数字 */

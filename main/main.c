@@ -2,25 +2,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sdkconfig.h"
+// #include "sdkconfig.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "exS3_conf.h"
+#include "encoder.h"
+#include "esp_log.h"
 
+#define TAG "main"
+
+// TaskHandle_t GuiTaskHandle = NULL;
+
+#if 0   // test
+void app_main(void)
+{   
+    ecd_t * ecd = ecd_create(ECD_PIN_A, ECD_PIN_B, false, true);
+    
+    // encoder_init();
+    // ecd_init();
+    ecd_btn_init();
+
+    xTaskCreatePinnedToCore(ecd_task, "ecd_task", 2048 * 2, (void *)ecd, 4, NULL, 1);
+    
+    xTaskCreatePinnedToCore(ecd_btn_task, "ecd_btn_task", 2048, NULL, 5, NULL, 1);
+}
+#endif
+
+#if 1
 // #include "i2c_mid.h"
 #include "i2c_bus.h"
 #include "spi_bus.h"
 #include "led.h"
 #include "axp173.h"
 #include "motor.h"
-#include "encoder.h"
 #include "lv_task.h"
-
-#include "exS3_conf.h"
-
-#include "esp_log.h"
-#define TAG "main"
 
 TaskHandle_t GuiTaskHandle;
 
@@ -35,18 +52,15 @@ void app_main(void)
     motor_init(MOTOR_PIN, 0);
     
     encoder_init();
-    
+
     // lv_create_task();    
     xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, &GuiTaskHandle, 1);
     xTaskCreatePinnedToCore(encoder_task, "encoderTask", 4096, (void *)GuiTaskHandle, 4, NULL, 1);
-    
-    motor_click(200);
-    // motor_on(MOTOR_PIN);
-    // vTaskDelay(pdMS_TO_TICKS(200));
-    // motor_off(MOTOR_PIN);
 
-    // rtos_debug();
+    /* 开机震动提醒 */
+    motor_click(200);
 }
+#endif
 
 
 /**

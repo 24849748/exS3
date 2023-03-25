@@ -7,6 +7,7 @@
 // #include "driver/spi_master.h"
 #include "spi_bus.h"
 #include "st7789_reg.h"
+// #include "lcd_bl.h"
 
 #include "driver/gpio.h"
 #include "esp_log.h"
@@ -118,6 +119,7 @@ void st7789_init(void){
 
     st7789_set_orientation(LCD_ORIENTATION);
     // st7789_enable_backlight(true);
+    // lcd_bl_set(LCD_DEFAULT_BRIGHTNESS);
 }
 
 
@@ -259,9 +261,8 @@ void st7789_enable_backlight(bool backlight) {
     uint32_t tmp = 0;
     tmp = backlight ? 1 : 0;
 
-    gpio_set_level(LCD_PIN_BLK, tmp);
+    gpio_set_level(LCD_PIN_BL, tmp);
 }
-
 
 
 

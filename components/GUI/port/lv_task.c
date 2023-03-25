@@ -19,6 +19,8 @@
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
 
+#include "encoder.h"
+
 /* GUI page */
 #include "main_page.h"
 #include "fan_page.h"
@@ -48,7 +50,7 @@ void guiTask(void *pvParameter){
 
     //lvgl display init
     lv_port_disp_init();
-
+    
     //lvgl indev init
     lv_port_indev_init();
 
@@ -75,13 +77,16 @@ void guiTask(void *pvParameter){
     create_brightnessBar();
     
     create_notify_timer();
+
+    /* 开启屏幕背光并进入开机界面 */
+    encoder_open_lcd();
     start_page();
     /* ============================ */
 
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
-        if(pdTRUE ==  xSemaphoreTake(xGuiMutex, portMAX_DELAY)){
+        if(pdTRUE == xSemaphoreTake(xGuiMutex, portMAX_DELAY)){
             lv_task_handler();
             xSemaphoreGive(xGuiMutex);
         }
