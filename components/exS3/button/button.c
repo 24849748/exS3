@@ -1,3 +1,13 @@
+/**
+ * @file button.c
+ * @author Bosco's git (1270112821@qq.com)
+ * @brief while(1)纯时间判断
+ * @version 0.1
+ * @date 2023-03-26
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "button.h"
 
 #include "exS3_conf.h"
@@ -217,7 +227,7 @@ static void button_task(void *pvParameter){
     while(1) {
         vTaskDelay(pdMS_TO_TICKS(100));
         button_scan();
-        // ESP_LOGI(TAG, "btn state:%d", encoder_btn_isPressing());
+        ESP_LOGI(TAG, "state: %d | press: %d", button_get_state(), button_isPressing());
         // ESP_LOGI(TAG, "isReleased:%d", encoder_btn_isReleased());
     }
 }

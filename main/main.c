@@ -6,7 +6,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include "button.h"
 #include "exS3_conf.h"
 #include "encoder.h"
 #include "esp_log.h"
@@ -16,17 +16,26 @@
 // TaskHandle_t GuiTaskHandle = NULL;
 
 #if 0   // test
+
+void short_press(){
+    ESP_LOGI(TAG, "short press");
+}
+void long_press(){
+    ESP_LOGI(TAG, "long press");
+}
+
 void app_main(void)
 {   
-    ecd_t * ecd = ecd_create(ECD_PIN_A, ECD_PIN_B, false, true);
+    button_init(short_press, long_press);
+    // ecd_t * ecd = ecd_create(ECD_PIN_A, ECD_PIN_B, false, true);
     
-    // encoder_init();
-    // ecd_init();
-    ecd_btn_init();
-
-    xTaskCreatePinnedToCore(ecd_task, "ecd_task", 2048 * 2, (void *)ecd, 4, NULL, 1);
+    // // encoder_init();
+    // // ecd_init();
+    // ecd_btn_init();
+    create_button_task();
+    // xTaskCreatePinnedToCore(ecd_task, "ecd_task", 2048 * 2, (void *)ecd, 4, NULL, 1);
     
-    xTaskCreatePinnedToCore(ecd_btn_task, "ecd_btn_task", 2048, NULL, 5, NULL, 1);
+    // xTaskCreatePinnedToCore(ecd_btn_task, "ecd_btn_task", 2048, NULL, 5, NULL, 1);
 }
 #endif
 
@@ -55,7 +64,7 @@ void app_main(void)
 
     // lv_create_task();    
     xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, &GuiTaskHandle, 1);
-    xTaskCreatePinnedToCore(encoder_task, "encoderTask", 4096, (void *)GuiTaskHandle, 4, NULL, 1);
+    xTaskCreatePinnedToCore(encoder_task, "encoderTask", 4096, (void *)GuiTaskHandle, 5, NULL, 1);
 
     /* 开机震动提醒 */
     motor_click(200);

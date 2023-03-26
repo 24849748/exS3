@@ -29,18 +29,20 @@
 
 int brightness = 0;    // todo: 将默认亮度存储到nvs里, init时从nvs读取
 int lastbrightness = 0;
-bool encoder_read_enable;
+// bool encoder_read_enable;
 ecd_t * ecd;
 
 static void btn_open_lcd_cb(void){
     lcd_bl_set(brightness);
     ft6236_enable_read();
-    encoder_read_enable = true;
+    // encoder_read_enable = true;
+    ecd->read_enable = true;
     led_endBlink();
 }
 
 static void btn_close_lcd_cb(void){
-    encoder_read_enable = false;
+    // encoder_read_enable = false;
+    ecd->read_enable = false;
     ft6236_disable_read();
     lcd_bl_set(0);
     led_startBlink();
@@ -57,7 +59,7 @@ void encoder_init(void){
 
     brightness = LCD_DEFAULT_BRIGHTNESS;
     lastbrightness = brightness;
-    encoder_read_enable = true;
+    // encoder_read_enable = true;
 
     // 初始化并关闭背光，在lv_task创建好obj后开启
     lcd_bl_init(LCD_PIN_BL);
@@ -66,7 +68,6 @@ void encoder_init(void){
 
 void encoder_task(void *pvParameter){
     TaskHandle_t GuiTaskHandle = (TaskHandle_t)pvParameter;
-    // ecd_t * ecd = (ecd_t *)pvParameter;
 
     int8_t dir;
     while (1)
@@ -74,14 +75,14 @@ void encoder_task(void *pvParameter){
         // ecd_btn_scan();
         button_scan();
         // 接受encoder的方向数据
-        if(xQueueReceive(ecd->queue, &dir, pdMS_TO_TICKS(200)) == pdTRUE)
+        if(xQueueReceive(ecd->queue, &dir, 0) == pdTRUE)
         {
-            if(dir == CW && encoder_read_enable){
-                brightness+=5;
+            if(dir == CW){
+                brightness+=LCD_BRIGHTNESS_STEP;
                 if(brightness > 100) brightness = 100;
-            }else if(dir == CCW && encoder_read_enable){
-                brightness-=5;
-                if(brightness < 5) brightness = 5;
+            }else if(dir == CCW){
+                brightness-=LCD_BRIGHTNESS_STEP;
+                if(brightness < LCD_BRIGHTNESS_STEP) brightness = LCD_BRIGHTNESS_STEP;
             }
         }
         // 如果brightness有变化，设置屏幕亮度，并更新lastbrightness，并发送给notify_bar

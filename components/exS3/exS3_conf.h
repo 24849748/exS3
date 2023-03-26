@@ -37,7 +37,7 @@
 // #define LCD_ORIENTATION 2
 
 #define LCD_DEFAULT_BRIGHTNESS  50
-
+#define LCD_BRIGHTNESS_STEP     4
 
 /*********************
  *    TOUCH: FT6236

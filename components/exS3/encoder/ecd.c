@@ -61,7 +61,6 @@ static uint8_t _ttable_full[TABLE_ROWS][TABLE_COLS] = {
 // volatile ecd_state_t state;
 // QueueHandle_t ecd_queue = NULL;
 
-
 static uint8_t _process(ecd_t *ecd) {
     uint8_t event = 0;
     
@@ -94,7 +93,9 @@ static void _isr_rotenc(void * args) {
 
     uint8_t event = _process(ecd);
     bool send_event = false;
-
+    if(!ecd->read_enable){
+        return;
+    }
     switch (event) {
     case DIR_CW:
         ++ecd->pos;
@@ -138,6 +139,7 @@ ecd_t *ecd_create(gpio_num_t pin_a, gpio_num_t pin_b, bool half, bool flip)
     ecd->flip = flip;
     ecd->pos = 0;
     ecd->dir = NO_SET;
+    ecd->read_enable = true;
 
     ecd->queue = xQueueCreate(EVENT_QUEUE_LENGTH, sizeof(int32_t));
     if(ecd->queue == NULL){

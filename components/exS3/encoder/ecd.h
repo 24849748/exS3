@@ -44,6 +44,7 @@ typedef struct {
     bool flip;
     volatile int32_t pos;
     volatile int8_t dir;
+    bool read_enable;
 } ecd_t;
 
 // typedef void * ecd_handle_t;
