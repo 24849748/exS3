@@ -1,13 +1,14 @@
 # exS3-Software
 
-exS3的软件仓库
-
-- **开发环境：VScode + ESP-IDF 4.4.4**
-- **第三方库：**
-- lvgl
-- esp-iot-solution
+exS3的软件仓库，已根据个人喜好对第三方组件进行裁剪修改
 
 
+ - **ESP-IDF 4.4.4**
+ - **LVGL 8.3.1**
+
+<img src="img/pic.png" alt="pic" style = "zoom:45%;">
+
+*****
 
 ## 开发日志
 
