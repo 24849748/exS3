@@ -4,7 +4,6 @@
 #include "lvgl.h"
 
 void create_brightnessBar(void);
-void create_handle_btn(void);
 void create_notify_timer(void);
 
 #endif

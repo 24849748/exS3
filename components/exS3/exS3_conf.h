@@ -126,4 +126,16 @@
 #define DEFAULT_MOTOR_CLICK_WORKTIME 80     // 点击操作马达震动时长 ms
 
 
+/*********************
+ *       WiFi
+ *********************/
+#define WIFI_NAME           "exS3"
+#define WIFI_SSID           "Home"
+#define WIFI_PASSWORD       "ASDqwe123"
+#define WIFI_SCAN_METHOD    WIFI_FAST_SCAN
+#define WIFI_SORT_METHOD    WIFI_CONNECT_AP_BY_SIGNAL
+#define WIFI_RSSI           -127
+#define WIFI_AUTHMODE       WIFI_AUTH_OPEN
+
+
 #endif

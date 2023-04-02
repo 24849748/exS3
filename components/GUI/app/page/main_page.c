@@ -7,6 +7,7 @@
 #include "lv_common.h"
 
 #include "motor.h"
+#include "exS3_sntp.h"
 
 #include "esp_log.h"
 
@@ -45,7 +46,9 @@ static lv_obj_t * btn_ac;           //空调界面按钮 obj
 static lv_obj_t * btn_info;         //信息界面按钮
 static lv_obj_t * btn_ctrl;         //控制界面按钮
 static lv_obj_t * time_bg;          //时间、太空人背景
+static lv_timer_t * time_update;     //时间更新定时器
 
+static struct tm timeinfo = {0};
 
 /* 太空人动图集 */
 const lv_img_dsc_t *astronaut_imgs[14] = {
@@ -99,22 +102,19 @@ static void btn_ctrl_cb(lv_event_t *e){
     }
 }
 
+static void time_update_cb(lv_timer_t *timer){
+    time_t now;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    lv_label_set_text_fmt(lv_obj_get_child(time_bg, 0), "%d:%d", timeinfo.tm_hour, timeinfo.tm_min);
+}
 
 /*************************
  *      绘制主页内容
  *************************/
 
 /* 宇航员动图 */
-void gif_astronaut(void){
-    // astronaut = lv_obj_create(time_bg);
-    // lv_obj_remove_style_all(astronaut);
-    // lv_obj_set_style_radius(astronaut,75,0);
-    // lv_obj_set_style_bg_color(astronaut,lv_color_black(),0);
-    // lv_obj_set_style_bg_opa(astronaut,LV_OPA_0,0);//opa 透明度
-    // // lv_obj_align(astronaut,LV_ALIGN_TOP_MID,0,20);
-    // lv_obj_align(astronaut,LV_ALIGN_RIGHT_MID, -10, 0);
-    // lv_obj_clear_flag(astronaut, LV_OBJ_FLAG_SCROLLABLE);
-    
+void gif_astronaut(void){    
     // astronaut_anim();
     lv_obj_t *animing_astronaut = lv_animimg_create(time_bg);
     // lv_obj_center(animing_astronaut);
@@ -129,6 +129,11 @@ void gif_astronaut(void){
 }
 
 void create_time_bg(){
+    SET_TIMEZONE();
+    time_t now;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
     time_bg = lv_obj_create(bg_screen);
     lv_obj_remove_style_all(time_bg);
     lv_obj_add_flag(time_bg, LV_OBJ_FLAG_CHECKABLE);
@@ -143,12 +148,11 @@ void create_time_bg(){
     /* 数字时间 */
     LV_FONT_DECLARE(HmOS_45pxnum);
     lv_obj_t *time = lv_label_create(time_bg);
-    int hour = 13, min = 35;
+    // int hour = 13, min = 35;
     lv_obj_align(time, LV_ALIGN_LEFT_MID, 2, 0);
     lv_obj_set_style_text_color(time, lv_color_white(), 0);
     lv_obj_set_style_text_font(time, &HmOS_45pxnum, 0);
-    lv_label_set_text_fmt(time, "%d:%d", hour, min);
-
+    lv_label_set_text_fmt(time, "%d:%d", timeinfo.tm_hour, timeinfo.tm_min);
 }
 
 void create_buttons(void){
@@ -213,6 +217,8 @@ void main_page_create_obj(void){
     create_buttons();
 
     main_page_hide_obj();
+
+    time_update = lv_timer_create(time_update_cb, 1000, NULL);
 }
 
 

@@ -42,14 +42,6 @@ static void barTimer_cb(lv_timer_t *timer){
     xTaskNotifyWait(0, 0, &brightness, 0);
     ESP_LOGD(TAG, "recive brightness:%d", brightness);
 
-    // if(dir > 0){
-    //     brightness+=5;
-    //     if(brightness > 100) brightness = 100;
-    // }else if(dir < 0){
-    //     brightness-=5;
-    //     if(brightness < 5) brightness = 5;
-    // }
-
     // brightness 没有变化
     if(brightness == last_brightness){
         timer_count ++;

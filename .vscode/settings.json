@@ -91,6 +91,9 @@
         "ecd.h": "c",
         "ecd_btn.h": "c",
         "list": "c",
-        "ecd_app.h": "c"
+        "ecd_app.h": "c",
+        "button.h": "c",
+        "time.h": "c",
+        "exs3_sntp.h": "c"
     }
 }

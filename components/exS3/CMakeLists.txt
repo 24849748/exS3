@@ -9,6 +9,7 @@ file(GLOB_RECURSE SOURCES
     ${EXS3_ROOT_DIR}/iodev/*c
     ${EXS3_ROOT_DIR}/encoder/*c
     ${EXS3_ROOT_DIR}/button/*c
+    ${EXS3_ROOT_DIR}/network/*c
 )
 
 idf_component_register(
@@ -23,7 +24,8 @@ idf_component_register(
         ${EXS3_ROOT_DIR}/iodev
         ${EXS3_ROOT_DIR}/encoder
         ${EXS3_ROOT_DIR}/button
+        ${EXS3_ROOT_DIR}/network
 
     REQUIRES
-        driver lvgl 
+        driver lvgl nvs_flash esp_netif
 )

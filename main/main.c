@@ -6,12 +6,12 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "button.h"
 #include "exS3_conf.h"
-#include "encoder.h"
 #include "esp_log.h"
 
-#define TAG "main"
+#include "button.h"
+#include "encoder.h"
+
 
 // TaskHandle_t GuiTaskHandle = NULL;
 
@@ -48,13 +48,18 @@ void app_main(void)
 #include "motor.h"
 #include "lv_task.h"
 
-TaskHandle_t GuiTaskHandle;
+#include "exS3_wifi.h"
+#include "exS3_sntp.h"
+
+#define TAG "main"
+
+TaskHandle_t GuiTaskHandle;     // freertos message notify
 
 void app_main(void)
 {   
     i2c_bus_init(I2C_PORT);
     spi_bus_init(SPI_HOST_ID);
-    
+
     axp_init();
 
     led_init(LED_PIN, 0);
@@ -62,6 +67,9 @@ void app_main(void)
     
     encoder_init();
 
+    wifi_init();
+    sntp_initalize();
+    sntp_obtain_time();
     // lv_create_task();    
     xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, &GuiTaskHandle, 1);
     xTaskCreatePinnedToCore(encoder_task, "encoderTask", 4096, (void *)GuiTaskHandle, 5, NULL, 1);
